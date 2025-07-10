@@ -170,7 +170,7 @@ export default function LoadingScreen() {
 
           {/* Progress Bar Container with enhanced dynamics */}
           <motion.div 
-            className="w-4/5 max-w-3xl relative"
+            className="w-4/5 max-w-3xl relative mb-16 sm:mb-12"
             animate={{ 
               scale: scaleAmount,
               filter: progress > 50 ? `contrast(${pulseIntensity})` : "none"
@@ -181,7 +181,7 @@ export default function LoadingScreen() {
             }}
             style={{ transformOrigin: "center" }}
           >
-            <div className="flex h-2 gap-1 mb-2">
+            <div className="flex h-2 gap-1 mb-8 sm:mb-6">
               {Array.from({ length: totalSegments }).map((_, index) => (
                 <div key={index} className="flex-1">
                   <ProgressBarSegment
@@ -192,12 +192,12 @@ export default function LoadingScreen() {
               ))}
             </div>
             
-            {/* Percentage Text - reverted to previous style */}
+            {/* Percentage Text - centered on both mobile and desktop */}
             <motion.div
-              className="absolute -right-1 top-5 ml-4 text-xs font-mono font-medium text-primary/90"
+              className="absolute left-1/2 -translate-x-1/2 text-xs font-mono font-medium text-primary/90"
               key={Math.round(progress)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
               {Math.round(progress)}%
