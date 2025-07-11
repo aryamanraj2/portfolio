@@ -14,48 +14,62 @@ import BackgroundEffect from "@/components/background-effect"
 import ScrollToTop from "@/components/scroll-to-top"
 import LoadingScreen from "@/components/loading-screen"
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function Home() {
   const [isProjectsSectionVisible, setIsProjectsSectionVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading screen duration (match your loading-screen exit duration)
-    const timer = setTimeout(() => setIsLoading(false), 2200);
+    // Match loading screen duration: 2000ms progress + 300ms hold + 800ms exit
+    const timer = setTimeout(() => setIsLoading(false), 3100);
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
-    <main className="min-h-screen">
-      {/* Dynamic background effect */}
-      <BackgroundEffect />
-      
-      {/* Custom cursor */}
-      <CustomCursor />
-      
-      {/* Scroll animations controller */}
-      <ScrollAnimations />
-      
-      {/* Navigation */}
-      <Navbar />
-      
-      {/* Main content sections */}
-      <HeroSection />
-      <AboutSection />
-      <ExperienceSection disableTimelineHover={isProjectsSectionVisible} />
-      <ProjectsSection
-        key={isLoading ? "loading" : "loaded"}
-        onVisibilityChange={setIsProjectsSectionVisible}
-      />
-      <SkillsSection />
-      <ContactSection />
-      
-      {/* Scroll to top button */}
-      <ScrollToTop />
-    </main>
+    <>
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <LoadingScreen key="loading" />
+        ) : (
+          <motion.main 
+            key="main"
+            className="min-h-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ 
+              duration: 0.6,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+          >
+            {/* Dynamic background effect */}
+            <BackgroundEffect />
+            
+            {/* Custom cursor */}
+            <CustomCursor />
+            
+            {/* Scroll animations controller */}
+            <ScrollAnimations />
+            
+            {/* Navigation */}
+            <Navbar />
+            
+            {/* Main content sections */}
+            <HeroSection />
+            <AboutSection />
+            <ExperienceSection disableTimelineHover={isProjectsSectionVisible} />
+            <ProjectsSection
+              key={isLoading ? "loading" : "loaded"}
+              onVisibilityChange={setIsProjectsSectionVisible}
+            />
+            <SkillsSection />
+            <ContactSection />
+            
+            {/* Scroll to top button */}
+            <ScrollToTop />
+          </motion.main>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

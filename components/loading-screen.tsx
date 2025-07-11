@@ -4,16 +4,29 @@ import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
 
 // Functional component for a single segment of the progress bar
-const ProgressBarSegment = ({ isActive, isPast }: { isActive: boolean; isPast: boolean }) => {
+const ProgressBarSegment = ({ isActive, isPast, delay }: { isActive: boolean; isPast: boolean; delay: number }) => {
   const variants = {
-    initial: { backgroundColor: "var(--segment-inactive)", opacity: 0.3, scale: 0.95 },
-    past: { backgroundColor: "var(--segment-past)", opacity: 0.5, scale: 1 },
+    initial: { 
+      backgroundColor: "var(--segment-inactive)", 
+      opacity: 0.2, 
+      scale: 0.98,
+      height: "100%"
+    },
+    past: { 
+      backgroundColor: "var(--segment-past)", 
+      opacity: 0.7, 
+      scale: 1,
+      height: "100%"
+    },
     active: { 
       backgroundColor: "var(--segment-active)", 
       opacity: 1, 
-      scale: 1.15,
+      scale: 1.05,
+      height: "120%",
       transition: {
-        scale: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        backgroundColor: { duration: 0.2, ease: "easeOut" }
       }
     },
   }
@@ -27,8 +40,10 @@ const ProgressBarSegment = ({ isActive, isPast }: { isActive: boolean; isPast: b
       initial="initial"
       animate={segmentState}
       transition={{ 
-        backgroundColor: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-        opacity: { duration: 0.6, ease: "easeInOut" },
+        backgroundColor: { duration: 0.3, ease: [0.23, 1, 0.32, 1], delay: delay * 0.01 },
+        opacity: { duration: 0.4, ease: "easeOut", delay: delay * 0.01 },
+        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
       }}
     />
   )
@@ -61,28 +76,31 @@ export default function LoadingScreen() {
   useEffect(() => {
     if (!mounted) return
 
-    // Simulate loading with more dynamic, variable progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        // Create a more dynamic loading effect with variable speeds
-        const progressFactor = prev < 40 ? 2.5 : 
-                               prev < 70 ? 1.8 : 
-                               prev < 90 ? 1.0 : 0.5
-                               
-        const randomFactor = Math.random() * 2.5
-        const newProgress = prev + (randomFactor * progressFactor)
-        
-        if (newProgress >= 100) {
-          clearInterval(interval)
-          // Add a slight delay before exit to appreciate the 100% state
-          setTimeout(() => setLoading(false), 400)
-          return 100
-        }
-        return newProgress
-      })
-    }, 80) // Slightly faster interval
-
-    return () => clearInterval(interval)
+    // Smooth, eased progress animation
+    const duration = 2000 // 2 seconds for full progress
+    const startTime = Date.now()
+    
+    const animateProgress = () => {
+      const elapsed = Date.now() - startTime
+      const normalizedTime = Math.min(elapsed / duration, 1)
+      
+      // Use cubic-bezier easing for smooth acceleration and deceleration
+      const easeInOutCubic = (t: number) => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      }
+      
+      const easedProgress = easeInOutCubic(normalizedTime) * 100
+      setProgress(easedProgress)
+      
+      if (normalizedTime < 1) {
+        requestAnimationFrame(animateProgress)
+      } else {
+        // Hold at 100% for a moment before exiting
+        setTimeout(() => setLoading(false), 300)
+      }
+    }
+    
+    requestAnimationFrame(animateProgress)
   }, [mounted])
 
   // Define colors for segments with enhanced contrast
@@ -97,11 +115,8 @@ export default function LoadingScreen() {
   const totalSegments = 80 // Number of segments in the bar
   const activeSegment = Math.floor((progress / 100) * totalSegments)
   
-  // Enhanced scale effect that grows more dramatically as progress increases
-  const scaleAmount = 1 + (progress / 100) * 0.4
-  
-  // Pulse effect intensity increases with progress
-  const pulseIntensity = 1 + (progress / 100) * 0.15
+  // Subtle scale effect that grows with progress
+  const scaleAmount = 1 + (progress / 100) * 0.05
 
   return (
     <AnimatePresence>
@@ -110,83 +125,58 @@ export default function LoadingScreen() {
           ref={containerRef}
           initial={{ opacity: 1 }}
           exit={{ 
-            scale: 1.8, 
+            scale: 1.05, 
             opacity: 0,
-            filter: "blur(8px)",
-            rotateZ: 2
+            filter: "blur(3px)",
+            y: -10
           }}
           transition={{ 
-            duration: 1.2, 
-            ease: [0.76, 0, 0.24, 1],
-            opacity: { duration: 0.8 },
-            scale: { duration: 1.2 }
+            duration: 0.6, 
+            ease: [0.4, 0, 0.2, 1],
+            opacity: { duration: 0.5, ease: [0.4, 0, 1, 1] },
+            scale: { duration: 0.6, ease: [0.4, 0, 0.2, 1] },
+            y: { duration: 0.6, ease: [0.4, 0, 0.2, 1] },
+            filter: { duration: 0.5, ease: [0.4, 0, 1, 1] }
           }}
           animate={backgroundControls}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
+          className="fixed inset-0 z-60 flex flex-col items-center justify-center bg-background"
         >
           <style>{`:root { ${segmentColors} }`}</style>
 
-          {/* Container for floating elements that add visual interest */}
+          {/* Subtle background glow */}
           <motion.div 
-            className="absolute inset-0 pointer-events-none opacity-20"
+            className="absolute inset-0 pointer-events-none"
             animate={{ 
-              opacity: [0.15, 0.25, 0.15], 
+              opacity: [0.1, 0.2, 0.1], 
             }}
             transition={{ 
               repeat: Infinity, 
-              duration: 4, 
+              duration: 6, 
               ease: "easeInOut" 
             }}
           >
-            {/* Add some ambient elements */}
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <motion.div 
-                key={idx}
-                className="absolute w-32 h-32 rounded-full bg-primary/10"
-                initial={{ 
-                  x: Math.random() * 100 - 50 + "%", 
-                  y: Math.random() * 100 - 50 + "%",
-                  scale: Math.random() * 0.4 + 0.8
-                }}
-                animate={{ 
-                  x: Math.random() * 100 - 50 + "%",
-                  y: Math.random() * 100 - 50 + "%",
-                  scale: [
-                    Math.random() * 0.4 + 0.8,
-                    Math.random() * 0.6 + 1.2,
-                    Math.random() * 0.4 + 0.8
-                  ],
-                  opacity: [0.3, 0.7, 0.3]
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 8 + idx * 4, 
-                  ease: "easeInOut",
-                  delay: idx * 0.5
-                }}
-              />
-            ))}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-primary/10 blur-2xl" />
           </motion.div>
 
-          {/* Progress Bar Container with enhanced dynamics */}
+          {/* Progress Bar Container */}
           <motion.div 
             className="w-4/5 max-w-3xl relative mb-16 sm:mb-12"
             animate={{ 
-              scale: scaleAmount,
-              filter: progress > 50 ? `contrast(${pulseIntensity})` : "none"
+              scale: scaleAmount
             }}
             transition={{ 
-              scale: { type: "spring", stiffness: 100, damping: 20 },
-              filter: { duration: 2, ease: "easeInOut" }
+              scale: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
             }}
             style={{ transformOrigin: "center" }}
           >
-            <div className="flex h-2 gap-1 mb-8 sm:mb-6">
+            <div className="flex h-2 gap-1 mb-8 sm:mb-6 items-end">
               {Array.from({ length: totalSegments }).map((_, index) => (
-                <div key={index} className="flex-1">
+                <div key={index} className="flex-1 flex items-end justify-center h-2">
                   <ProgressBarSegment
                     isActive={index === activeSegment}
                     isPast={index < activeSegment}
+                    delay={index}
                   />
                 </div>
               ))}
@@ -207,4 +197,4 @@ export default function LoadingScreen() {
       )}
     </AnimatePresence>
   )
-} 
+}
