@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+}
+
 @layer base {
   /* Dark Theme Only */
   :root {
@@ -326,6 +329,7 @@
       transform: translateY(0) scale(1);
     }
   }
+
 }
 
 /* Custom Scrollbar - Dark mode */
@@ -455,6 +459,7 @@
 */
 
 /* Cursor Trail Effects - Removed ... */
+
 
 @layer utilities {
   .text-shadow-sm {

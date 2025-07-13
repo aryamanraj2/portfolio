@@ -9,7 +9,6 @@ import ContactSection from "@/components/contact-section"
 import ExperienceSection from "@/components/experience-section"
 import Footer from "@/components/footer"
 import CustomCursor from "@/components/custom-cursor"
-import ScrollAnimations from "@/components/scroll-animations"
 import BackgroundEffect from "@/components/background-effect"
 import ScrollToTop from "@/components/scroll-to-top"
 import LoadingScreen from "@/components/loading-screen"
@@ -48,16 +47,13 @@ export default function Home() {
             {/* Custom cursor */}
             <CustomCursor />
             
-            {/* Scroll animations controller */}
-            <ScrollAnimations />
-            
             {/* Navigation */}
             <Navbar />
             
             {/* Main content sections */}
             <HeroSection />
             <AboutSection />
-            <ExperienceSection disableTimelineHover={isProjectsSectionVisible} />
+            <ExperienceSection />
             <ProjectsSection
               key={isLoading ? "loading" : "loaded"}
               onVisibilityChange={setIsProjectsSectionVisible}

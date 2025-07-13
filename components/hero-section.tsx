@@ -6,6 +6,7 @@ import { ArrowRightIcon } from "lucide-react"
 import EyeballA from "./eyeball-a"
 
 export default function HeroSection() {
+
   const heroVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -30,13 +31,7 @@ export default function HeroSection() {
   }
 
   return (
-    <section id="home" className="section-animate relative min-h-[90vh] flex items-center justify-center scroll-section pb-16">
-      {/* Cursor trail effect only on hero section */}
-      {/* <CursorTrail /> */}
-      
-      {/* Decorative elements OUTSIDE container (optional, if needed) */}
-      {/* <div className="absolute ..."></div> */}
-
+    <section id="home" className="section-animate relative min-h-[85vh] flex items-center justify-center pt-16 pb-16">
       {/* Added relative and overflow-hidden here */}
       <div className="container px-4 mx-auto relative z-10 overflow-hidden">
         {/* Moved Grid lines INSIDE the container */}
@@ -48,7 +43,7 @@ export default function HeroSection() {
           animate="visible"
           variants={heroVariants}
         >
-          <div className="p-8 rounded-2xl bg-card/80 border border-border/30 backdrop-blur-md shadow-xl">
+          <div className="p-8 rounded-2xl bg-card/80 border border-border/30 backdrop-blur-md shadow-xl transition-all duration-200 ease-out">
             <motion.h1 
               className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight"
               variants={itemVariants}
@@ -71,7 +66,7 @@ export default function HeroSection() {
             >
               <Button
                 asChild
-                className="fill-center-button group text-lg"
+                className="fill-center-button text-lg"
               >
                 <a href="#projects">
                   View My Work
@@ -80,7 +75,7 @@ export default function HeroSection() {
               </Button>
               <Button
                 asChild
-                className="fill-center-button group text-lg"
+                className="fill-center-button text-lg"
               >
                 <a href="/Aryaman_Jaiswal_Resume.pdf" download="Aryaman_Jaiswal_Resume.pdf" target="_blank" rel="noopener noreferrer">
                   Resume

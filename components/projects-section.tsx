@@ -188,7 +188,7 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
       <motion.section
         id="projects"
         ref={combinedRef}
-        className="section-animate py-24 scroll-section section-padding relative overflow-hidden"
+        className="section-animate py-24 relative overflow-hidden"
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
         variants={{ visible: { transition: { staggerChildren: 0.1 } } }}

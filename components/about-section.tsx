@@ -183,24 +183,36 @@ export default function AboutSection() {
     };
   }, [popupContent]);
 
-  // Modal animation variants (copied from projects-section)
+  // Enhanced modal animation variants
   const popupContentVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.07,
-        delayChildren: 0.15
+        staggerChildren: 0.08,
+        delayChildren: 0.1
       }
     }
   };
   const popupItemVariants = {
-    hidden: { opacity: 0, y: 15, filter: "blur(4px)" },
+    hidden: { 
+      opacity: 0, 
+      y: 20, 
+      scale: 0.95,
+      filter: "blur(6px)" 
+    },
     visible: {
       opacity: 1,
       y: 0,
+      scale: 1,
       filter: "blur(0px)",
-      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] }
+      transition: { 
+        duration: 0.4, 
+        ease: [0.25, 0.46, 0.45, 0.94],
+        type: 'spring',
+        stiffness: 300,
+        damping: 25
+      }
     }
   };
 
@@ -208,7 +220,7 @@ export default function AboutSection() {
     <section 
       id="about" 
       ref={sectionRef}
-      className="section-animate py-24 scroll-section section-padding relative overflow-hidden"
+      className="section-animate py-24 relative overflow-hidden"
     >
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -313,7 +325,7 @@ export default function AboutSection() {
                 return (
                   <motion.div
                     key={card.id}
-                    className="flex flex-col items-center text-center p-8 rounded-2xl bg-card/80 border border-border/30 backdrop-blur-md shadow-xl h-full cursor-pointer group relative"
+                    className="interactive-card flex flex-col items-center text-center p-8 rounded-2xl bg-card/80 border border-border/30 backdrop-blur-md shadow-xl h-full cursor-pointer group relative"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     initial={{ opacity: 0, y: 20 }}
@@ -359,30 +371,61 @@ export default function AboutSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
               ref={backdropRef}
               onClick={e => { if (backdropRef.current && e.target === backdropRef.current) setPopupContent(null); }}
             >
               {/* Overlay for modal (for fade-out on close) */}
-              <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0" />
+              <motion.div 
+                className="absolute inset-0 bg-black/40 backdrop-blur-md z-0" 
+                initial={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+                animate={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0,0,0,0.4)' }}
+                exit={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+                transition={{ duration: 0.2 }}
+              />
               {/* Modal itself */}
               <motion.div
                 ref={modalRef}
                 className="relative max-w-lg w-full p-0 md:p-0 rounded-2xl shadow-2xl border border-border bg-white dark:bg-black/95 text-foreground focus:outline-none ring-2 ring-primary/10 z-10"
                 tabIndex={-1}
-                initial={{ scale: 0.92, opacity: 0, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
-                animate={{ scale: 1, opacity: 1, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25)' }}
-                exit={{ scale: 0.92, opacity: 0, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
-                transition={{ type: 'spring', stiffness: 500, damping: 32, duration: 0.32 }}
+                initial={{ 
+                  scale: 0.7, 
+                  opacity: 0, 
+                  y: 40,
+                  rotateX: 15,
+                  boxShadow: '0 0 0 0 rgba(0,0,0,0)' 
+                }}
+                animate={{ 
+                  scale: 1, 
+                  opacity: 1, 
+                  y: 0,
+                  rotateX: 0,
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)' 
+                }}
+                exit={{
+                  scale: 0.9,
+                  opacity: 0,
+                  y: 20,
+                  boxShadow: '0 0 0 0 rgba(0,0,0,0)'
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 30,
+                  mass: 0.5,
+                  opacity: { duration: 0.25, ease: "easeOut" },
+                  y: { type: 'spring', stiffness: 300, damping: 30 },
+                  scale: { duration: 0.25, ease: "easeOut" }
+                }}
                 onClick={e => e.stopPropagation()}
               >
                 {/* Close button */}
-                <button 
-                  className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+                <motion.button 
+                  className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors duration-200 p-1 rounded-full hover:bg-muted/20"
                   onClick={() => setPopupContent(null)}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+                </motion.button>
                 <div className="p-8">
                   <motion.div variants={popupContentVariants} initial="hidden" animate="visible">
                     <motion.h4 variants={popupItemVariants} className="text-3xl font-bold mb-1 gradient-text">{popupContent.title}</motion.h4>

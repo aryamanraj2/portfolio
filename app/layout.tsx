@@ -11,9 +11,14 @@ import { Toaster } from "@/components/ui/toaster"
 import { HoverProvider } from "@/context/HoverContext"
 import "@fontsource-variable/rethink-sans" // Import Rethink Sans font
 import "../public/fonts/neue-metana/neue-metana.css"
+import SmoothScrollProvider from "@/components/smooth-scroll-provider"
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
-const syne = Syne({ subsets: ["latin"], variable: "--font-syne" })
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  weight: ["700", "800"],
+})
 
 export const metadata: Metadata = {
   title: "Aryaman Jaiswal | Developer Portfolio",
@@ -27,14 +32,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth antialiased">
+    <html lang="en" className="antialiased">
       <body className={cn("min-h-screen font-sans cursor-hidden dark", outfit.variable, syne.variable)} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false} disableTransitionOnChange>
           <HoverProvider>
-            <SvgFilters />
-            <LoadingScreen />
-            {children}
-            <Toaster />
+            <SmoothScrollProvider>
+              <SvgFilters />
+              <LoadingScreen />
+              {children}
+              <Toaster />
+            </SmoothScrollProvider>
           </HoverProvider>
         </ThemeProvider>
       </body>

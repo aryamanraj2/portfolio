@@ -54,7 +54,7 @@ export default function ContactSection() {
     <section 
       id="contact" 
       ref={ref}
-      className="section-animate py-20 scroll-section section-padding relative overflow-hidden"
+      className="section-animate py-20 relative overflow-hidden"
     >
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
