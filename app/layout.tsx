@@ -6,7 +6,6 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import SvgFilters from "@/components/svg-filters"
-import LoadingScreen from "@/components/loading-screen"
 import { Toaster } from "@/components/ui/toaster"
 import { HoverProvider } from "@/context/HoverContext"
 import SmoothScrollProvider from "@/components/smooth-scroll-provider"
@@ -45,7 +44,6 @@ export default function RootLayout({
           <SmoothScrollProvider>
             <HoverProvider>
               <SvgFilters />
-              <LoadingScreen />
               {children}
               <Toaster />
             </HoverProvider>

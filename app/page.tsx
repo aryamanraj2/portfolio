@@ -11,7 +11,7 @@ import ExperienceSection from "@/components/experience-section"
 import CustomCursor from "@/components/custom-cursor"
 import BackgroundEffect from "@/components/background-effect"
 import ScrollToTop from "@/components/scroll-to-top"
-import LoadingScreen from "@/components/loading-screen"
+import NewLoadingScreen from "@/components/new-loading-screen"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -19,16 +19,10 @@ export default function Home() {
   const [isProjectsSectionVisible, setIsProjectsSectionVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Match loading screen duration: 2000ms progress + 300ms hold + 800ms exit
-    const timer = setTimeout(() => setIsLoading(false), 3100);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <>
       <AnimatePresence mode="wait">
-        {isLoading && <LoadingScreen key="loading" />}
+        {isLoading && <NewLoadingScreen key="loading" onLoadingComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
       {!isLoading && (
