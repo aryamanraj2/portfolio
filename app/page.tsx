@@ -21,38 +21,36 @@ export default function Home() {
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        {isLoading && <NewLoadingScreen key="loading" onLoadingComplete={() => setIsLoading(false)} />}
+      <AnimatePresence>
+        {isLoading && (
+          <NewLoadingScreen
+            key="loading"
+            onLoadingComplete={() => setIsLoading(false)}
+          />
+        )}
       </AnimatePresence>
 
-      {!isLoading && (
-        <>
-          <BackgroundEffect />
-          <CustomCursor />
-          <Navbar />
-          <motion.main
-            key="main"
-            className="relative z-10"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.8,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
-          >
-            <HeroSection />
-            <AboutSection />
-            <ExperienceSection />
-            <ProjectsSection
-              onVisibilityChange={setIsProjectsSectionVisible}
-            />
-            <SkillsSection />
-            <ContactSection />
-
-          </motion.main>
-          <ScrollToTop />
-        </>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoading ? 0 : 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className={isLoading ? 'hidden' : 'block'}
+      >
+        <BackgroundEffect />
+        <CustomCursor />
+        <Navbar />
+        <main className="relative z-10">
+          <HeroSection />
+          <AboutSection />
+          <ExperienceSection />
+          <ProjectsSection
+            onVisibilityChange={setIsProjectsSectionVisible}
+          />
+          <SkillsSection />
+          <ContactSection />
+        </main>
+        <ScrollToTop />
+      </motion.div>
     </>
   );
 }

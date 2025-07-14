@@ -125,14 +125,13 @@ export default function NewLoadingScreen({ onLoadingComplete }: { onLoadingCompl
         <motion.div
           initial={{ opacity: 1 }}
           exit={{
-            scale: 1.05,
             opacity: 0,
-            filter: "blur(3px)",
-            y: -10
+            scale: 0.98,
+            filter: "blur(0px)",
           }}
           transition={{
-            duration: 0.6,
-            ease: [0.4, 0, 0.2, 1]
+            duration: 0.5,
+            ease: [0.4, 0, 0.2, 1],
           }}
           className="fixed inset-0 z-60 flex flex-col items-center justify-center bg-background"
         >
