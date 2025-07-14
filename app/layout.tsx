@@ -9,6 +9,7 @@ import SvgFilters from "@/components/svg-filters"
 import LoadingScreen from "@/components/loading-screen"
 import { Toaster } from "@/components/ui/toaster"
 import { HoverProvider } from "@/context/HoverContext"
+import SmoothScrollProvider from "@/components/smooth-scroll-provider"
 import "@fontsource-variable/rethink-sans" // Import Rethink Sans font
 import "../public/fonts/neue-metana/neue-metana.css"
 
@@ -41,12 +42,14 @@ export default function RootLayout({
     <html lang="en" className="antialiased">
       <body className={cn("min-h-screen font-sans cursor-hidden dark", outfit.variable, syne.variable)} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false} disableTransitionOnChange>
-          <HoverProvider>
-            <SvgFilters />
-            <LoadingScreen />
-            {children}
-            <Toaster />
-          </HoverProvider>
+          <SmoothScrollProvider>
+            <HoverProvider>
+              <SvgFilters />
+              <LoadingScreen />
+              {children}
+              <Toaster />
+            </HoverProvider>
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>

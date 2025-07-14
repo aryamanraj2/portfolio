@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useRef } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import { Smartphone, Globe, Layers } from "lucide-react"
+import { useScrollInView, useScrollAnimation } from "@/hooks/use-smooth-scroll"
 
 interface ExpertiseArea {
   icon: React.ReactElement;
@@ -58,16 +59,36 @@ const skillVariants = {
 };
 
 export default function SkillsSection() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
+  // Use optimized scroll hook for parallax effects
+  const { ref: parallaxRef, isInView: isVisible } = useScrollInView(0.2, '0px 0px -20% 0px');
+  
+  // Optimized parallax animation with RAF throttling
+  const parallaxAnimationRef = useScrollAnimation((progress) => {
+    const element = parallaxRef.current;
+    if (!element) return;
+    
+    const y = progress * -50; // Parallax offset
+    const opacity = Math.min(1, progress * 3); // Fade in effect
+    
+    element.style.transform = `translateY(${y}px) translateZ(0)`;
+    element.style.opacity = opacity.toString();
   });
   
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const parallaxOpacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
+  // Combine refs for the section
+  const combinedRef = (node: HTMLElement | null) => {
+    if (sectionRef.current !== node) {
+      (sectionRef as any).current = node;
+    }
+    if (parallaxRef.current !== node) {
+      (parallaxRef as any).current = node;
+    }
+    if (parallaxAnimationRef.current !== node) {
+      (parallaxAnimationRef as any).current = node;
+    }
+  };
 
   const expertiseData: ExpertiseArea[] = [
     {
@@ -95,20 +116,16 @@ export default function SkillsSection() {
   return (
     <section
       id="skills"
-      ref={sectionRef}
-      className="section-animate py-24 relative overflow-hidden"
+      ref={combinedRef}
+      className="section-animate py-24 relative overflow-hidden scroll-optimized"
     >
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] bg-[length:50px_50px]" />
       </div>
 
-      <motion.div 
-        className="container px-4 mx-auto relative z-10"
-        style={{
-          y: parallaxY,
-          opacity: parallaxOpacity
-        }}
+      <motion.div
+        className="container px-4 mx-auto relative z-10 scroll-optimized"
       >
         {/* Heading - Snappier animation */}
         <motion.div 

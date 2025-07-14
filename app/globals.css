@@ -2,7 +2,184 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === PREMIUM SMOOTH SCROLL OPTIMIZATIONS === */
 html {
+  /* Native smooth scrolling with momentum */
+  scroll-behavior: smooth;
+  /* Prevent layout shifts during scrolling */
+  scroll-padding-top: 80px;
+}
+
+/* Optimize scroll container */
+html, body {
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth text rendering during scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Improve scroll performance */
+  overscroll-behavior: none;
+}
+
+/* Performance optimizations for scroll animations */
+* {
+  /* Promote elements that will be animated to their own layer */
+}
+
+/* === PREMIUM MOMENTUM SCROLLING === */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+    /* Custom scroll timing for premium feel */
+    scroll-snap-type: none;
+  }
+  
+  /* Smooth scroll for anchor links with momentum */
+  a[href^="#"] {
+    scroll-behavior: smooth;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+/* Optimized scroll animations */
+.scroll-container {
+  /* Enable hardware acceleration */
+  backface-visibility: hidden;
+  /* Smooth momentum on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent scrollbar layout shifts */
+  scrollbar-gutter: stable;
+}
+
+/* Enhanced parallax with momentum */
+.parallax-element {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* Smooth transitions for parallax */
+  transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Scroll-triggered animations with easing */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-60px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(60px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Smooth scale animations */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Premium scroll reveal classes */
+.scroll-reveal {
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  animation: slideInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  animation: slideInRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  animation: scaleIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Staggered animation delays for premium feel */
+.scroll-reveal:nth-child(1) { animation-delay: 0.1s; }
+.scroll-reveal:nth-child(2) { animation-delay: 0.2s; }
+.scroll-reveal:nth-child(3) { animation-delay: 0.3s; }
+.scroll-reveal:nth-child(4) { animation-delay: 0.4s; }
+.scroll-reveal:nth-child(5) { animation-delay: 0.5s; }
+.scroll-reveal:nth-child(6) { animation-delay: 0.6s; }
+
+/* Enhanced momentum scrolling physics */
+.momentum-scroll {
+  /* Cubic bezier for natural deceleration */
+  scroll-behavior: smooth;
+  scroll-timeline: --scroll;
+  animation-timeline: --scroll;
+  /* Enhanced scroll physics */
+  overscroll-behavior: none;
+  scroll-padding-top: 80px;
+}
+
+/* Smooth section transitions */
+.section-transition {
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(0);
+}
+
+/* Advanced parallax layers */
+.parallax-slow {
+  animation: parallaxSlow linear;
+  animation-timeline: scroll();
+}
+
+.parallax-medium {
+  animation: parallaxMedium linear;
+  animation-timeline: scroll();
+}
+
+.parallax-fast {
+  animation: parallaxFast linear;
+  animation-timeline: scroll();
+}
+
+@keyframes parallaxSlow {
+  to { transform: translateY(-20px) translateZ(0); }
+}
+
+@keyframes parallaxMedium {
+  to { transform: translateY(-40px) translateZ(0); }
+}
+
+@keyframes parallaxFast {
+  to { transform: translateY(-80px) translateZ(0); }
 }
 
 @layer base {
@@ -117,10 +294,6 @@ html {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
-    /* Remove complex gradient background */
-    /* background: linear-gradient(...) */
-    background-attachment: fixed; /* Keep this if needed for other bg effects */
-    border: 2px solid hsl(var(--border) / 0.1);
   }
 
   h1, h2, h3, h4, h5, h6 {
