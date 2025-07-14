@@ -7,7 +7,7 @@ import ProjectsSection from "@/components/projects-section"
 import SkillsSection from "@/components/skills-section"
 import ContactSection from "@/components/contact-section"
 import ExperienceSection from "@/components/experience-section"
-import Footer from "@/components/footer"
+
 import CustomCursor from "@/components/custom-cursor"
 import BackgroundEffect from "@/components/background-effect"
 import ScrollToTop from "@/components/scroll-to-top"
@@ -54,7 +54,7 @@ export default function Home() {
             />
             <SkillsSection />
             <ContactSection />
-            <Footer />
+
           </motion.main>
           <ScrollToTop />
         </>
