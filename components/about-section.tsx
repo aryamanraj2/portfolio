@@ -363,7 +363,7 @@ export default function AboutSection() {
       </motion.div>
 
       {/* Modal rendered in a portal, outside the blurred overlay */}
-      {createPortal(
+      {isClient && createPortal(
         <AnimatePresence>
           {popupContent && (
             <motion.div

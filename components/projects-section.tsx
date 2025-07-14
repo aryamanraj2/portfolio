@@ -95,6 +95,11 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!selectedProjectId) return;
@@ -272,7 +277,7 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
       </motion.section>
 
       {/* Modal rendered in a portal, with animations from about-section */}
-      {createPortal(
+      {isClient && createPortal(
         <AnimatePresence>
           {selectedProjectId && (() => {
             const project = projects.find(p => p.id === selectedProjectId);

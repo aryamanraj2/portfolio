@@ -61,6 +61,9 @@ export default function Home() {
             <SkillsSection />
             <ContactSection />
             
+            {/* Footer */}
+            <Footer />
+
             {/* Scroll to top button */}
             <ScrollToTop />
           </motion.main>

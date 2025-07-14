@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { HoverProvider } from "@/context/HoverContext"
 import "@fontsource-variable/rethink-sans" // Import Rethink Sans font
 import "../public/fonts/neue-metana/neue-metana.css"
-import SmoothScrollProvider from "@/components/smooth-scroll-provider"
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
 const syne = Syne({
@@ -43,12 +42,10 @@ export default function RootLayout({
       <body className={cn("min-h-screen font-sans cursor-hidden dark", outfit.variable, syne.variable)} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false} disableTransitionOnChange>
           <HoverProvider>
-            <SmoothScrollProvider>
-              <SvgFilters />
-              <LoadingScreen />
-              {children}
-              <Toaster />
-            </SmoothScrollProvider>
+            <SvgFilters />
+            <LoadingScreen />
+            {children}
+            <Toaster />
           </HoverProvider>
         </ThemeProvider>
       </body>
