@@ -41,6 +41,78 @@ html {
     -moz-user-select: none;
     -ms-user-select: none;
   }
+  
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    * {
+      /* Prevent text from getting too small on mobile */
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    /* Optimize touch interactions */
+    button, 
+    a, 
+    [role="button"] {
+      touch-action: manipulation;
+    }
+    
+    /* Smooth scrolling on mobile */
+    html {
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Mobile background animations */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+      opacity: 0.2;
+    }
+    25% {
+      transform: translateY(-20px) translateX(10px);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translateY(-40px) translateX(-5px);
+      opacity: 0.8;
+    }
+    75% {
+      transform: translateY(-20px) translateX(-10px);
+      opacity: 0.4;
+    }
+  }
+  
+  .animate-float {
+    animation: float infinite ease-in-out;
+  }
+  
+  /* Subtle wave animation for mobile grid */
+  @keyframes wave {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .animate-wave {
+    animation: wave 4s infinite ease-in-out;
+  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));

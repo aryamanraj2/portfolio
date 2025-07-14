@@ -45,12 +45,24 @@ const popupContentVariants = {
 };
 
 const popupItemVariants = {
-  hidden: { opacity: 0, y: 15, filter: "blur(4px)" },
+  hidden: {
+    opacity: 0,
+    y: 20,
+    scale: 0.95,
+    filter: "blur(6px)"
+  },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     filter: "blur(0px)",
-    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] }
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94],
+      type: 'spring',
+      stiffness: 300,
+      damping: 25
+    }
   }
 };
 
@@ -63,7 +75,7 @@ interface ProjectsSectionProps {
 export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const { ref: inViewRef, inView } = useInView({
-    triggerOnce: false,
+    triggerOnce: true,
     threshold: 0.1,
   });
 
@@ -126,6 +138,16 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
       subtitle: "All-in-one NSUT Student App",
     },
     {
+      id: "wandr",
+      title: "Wandr",
+      description: "Wandr is not just another travel app that gives you recommendations; it's an AI that executes your trip. Using a multi-agent system, Wandr literally makes phone calls, books reservations, and handles group payments from a single voice command. Just say, \"We're in Goa, ₹5000 each, beach vibes + party, 8 hours,\" and watch as the AI researches, books, and creates a live itinerary in real-time. It's the future of spontaneous travel, turning your 'what now?' moments into fully planned adventures.",
+      image: "/placeholder.svg?height=400&width=600",
+      tags: ["SwiftUI", "PythonToolkit", "Gemini", "OmniDimension", "Multi-Agent AI"],
+      liveUrl: "https://youtu.be/2SnTEBmqZUQ",
+      githubUrl: "https://github.com/aryamanj250/Wandr",
+      subtitle: "The AI That Actually Books Your Trip",
+    },
+    {
       id: "himyatra",
       title: "HimYatra",
       description: "A comprehensive tourism solution for Himachal Pradesh featuring a dual-platform system. The web-based HimYatra Companion provides hospitality providers with real-time booking management, occupancy tracking, and visitor analytics. Built with a focus on accessibility and ease of use for both established hotels and smaller homestays.",
@@ -181,10 +203,6 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
 
   return (
     <>
-      {/* Overlay: darken and blur the background only */}
-      {selectedProjectId && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] pointer-events-auto transition-opacity duration-200" />
-      )}
       <motion.section
         id="projects"
         ref={combinedRef}
@@ -197,7 +215,7 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
           <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] bg-[length:50px_50px]" />
         </div>
 
-        <motion.div 
+        <motion.div
           className="container px-4 mx-auto relative z-10"
           style={{
             y: parallaxY,
@@ -252,89 +270,106 @@ export default function ProjectsSection({ onVisibilityChange }: ProjectsSectionP
           </motion.ul>
         </motion.div>
       </motion.section>
-      {/* Modal rendered in a portal, outside the blurred overlay */}
+
+      {/* Modal rendered in a portal, with animations from about-section */}
       {createPortal(
         <AnimatePresence>
-          {selectedProjectId && projects.find(p => p.id === selectedProjectId) && (() => {
-            const project = projects.find(p => p.id === selectedProjectId)!;
+          {selectedProjectId && (() => {
+            const project = projects.find(p => p.id === selectedProjectId);
+            if (!project) return null;
+
             return (
-              <>
-                {/* Overlay for modal (for fade-out on close) */}
+              <motion.div
+                className="fixed inset-0 z-[71] flex items-center justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                ref={backdropRef}
+                onClick={handleBackdropClick}
+              >
+                {/* Animated backdrop */}
                 <motion.div
-                  className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  style={{ pointerEvents: 'none' }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-md z-0"
+                  initial={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+                  animate={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0,0,0,0.4)' }}
+                  exit={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+                  transition={{ duration: 0.2 }}
                 />
                 {/* Modal itself */}
                 <motion.div
-                  ref={backdropRef}
-                  onClick={handleBackdropClick}
-                  className="fixed inset-0 z-[71] flex items-center justify-center p-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
+                  ref={modalRef}
+                  className="relative max-w-2xl w-full p-0 md:p-0 rounded-2xl shadow-2xl border border-border bg-white dark:bg-black/95 text-foreground focus:outline-none ring-2 ring-primary/10 z-10"
+                  tabIndex={-1}
+                  initial={{ scale: 0.7, opacity: 0, y: 40, rotateX: 15, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
+                  animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)' }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 30,
+                    mass: 0.5,
+                    opacity: { duration: 0.25, ease: "easeOut" },
+                    y: { type: 'spring', stiffness: 300, damping: 30 },
+                    scale: { duration: 0.25, ease: "easeOut" }
+                  }}
+                  onClick={e => e.stopPropagation()}
                 >
-                  <motion.div
-                    ref={modalRef}
-                    className="max-w-2xl w-full p-0 md:p-0 rounded-2xl shadow-2xl border border-border bg-white dark:bg-black/95 text-foreground relative focus:outline-none ring-2 ring-primary/10"
-                    tabIndex={-1}
-                    initial={{ scale: 0.92, opacity: 0, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
-                    animate={{ scale: 1, opacity: 1, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25)' }}
-                    exit={{ scale: 0.92, opacity: 0, boxShadow: '0 0 0 0 rgba(0,0,0,0)' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 32, duration: 0.32 }}
+                  {/* Close button */}
+                  <motion.button
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors duration-200 p-1 rounded-full hover:bg-muted/20 z-20"
+                    onClick={closeDetails}
                   >
-                    {/* Project Image Preview */}
-                    <div className="w-full h-48 md:h-64 rounded-t-2xl overflow-hidden bg-neutral-900 flex items-center justify-center border-b border-border">
-                      <img src={project.image} alt={project.title + ' preview'} className="object-cover w-full h-full" />
-                    </div>
-                    <div className="p-6 md:p-8">
-                      <motion.div variants={popupContentVariants} initial="hidden" animate="visible">
-                        <motion.h4 variants={popupItemVariants} className="text-3xl font-bold mb-1 gradient-text">{project.title}</motion.h4>
-                        <motion.p variants={popupItemVariants} className="text-sm text-muted-foreground mb-5">{project.subtitle}</motion.p>
-                        <motion.p variants={popupItemVariants} className="mb-6 leading-relaxed text-foreground">{project.description}</motion.p>
-                        {/* Enhanced tags */}
-                        <motion.div variants={popupItemVariants} className="flex flex-wrap gap-2 mb-6">
-                          {project.tags.map((tag, tagIndex) => (
-                            <span key={tagIndex} className="rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold shadow-sm border border-primary/20 transition-all duration-150">
-                              {tag}
-                            </span>
-                          ))}
-                        </motion.div>
-                        {/* Enhanced buttons */}
-                        <motion.div variants={popupItemVariants} className="flex flex-col sm:flex-row justify-end gap-3 pt-2 border-t border-border/20">
-                          <Button
-                            size="sm"
-                            className="fill-center-button !py-2 !px-4 text-sm flex items-center gap-1.5 w-full sm:w-auto"
-                            asChild
-                          >
-                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                              Demo
-                            </a>
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="fill-center-button !py-2 !px-4 text-sm flex items-center gap-1.5 w-full sm:w-auto"
-                            asChild
-                          >
-                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4" />
-                              Code
-                            </a>
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={closeDetails} className="w-full sm:w-auto !py-2 !px-4">
-                            Close
-                          </Button>
-                        </motion.div>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </motion.button>
+
+                  {/* Project Image Preview */}
+                  <div className="w-full h-48 md:h-64 rounded-t-2xl overflow-hidden bg-neutral-900 flex items-center justify-center border-b border-border">
+                    <img src={project.image} alt={project.title + ' preview'} className="object-cover w-full h-full" />
+                  </div>
+                  <div className="p-6 md:p-8">
+                    <motion.div variants={popupContentVariants} initial="hidden" animate="visible">
+                      <motion.h4 variants={popupItemVariants} className="text-3xl font-bold mb-1 gradient-text">{project.title}</motion.h4>
+                      <motion.p variants={popupItemVariants} className="text-sm text-muted-foreground mb-5">{project.subtitle}</motion.p>
+                      <motion.p variants={popupItemVariants} className="mb-6 leading-relaxed text-foreground">{project.description}</motion.p>
+                      {/* Enhanced tags */}
+                      <motion.div variants={popupItemVariants} className="flex flex-wrap gap-2 mb-6">
+                        {project.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold shadow-sm border border-primary/20 transition-all duration-150">
+                            {tag}
+                          </span>
+                        ))}
                       </motion.div>
-                    </div>
-                  </motion.div>
+                      {/* Enhanced buttons */}
+                      <motion.div variants={popupItemVariants} className="flex flex-col sm:flex-row justify-end gap-3 pt-2 border-t border-border/20">
+                        <Button
+                          size="sm"
+                          className="fill-center-button !py-2 !px-4 text-sm flex items-center gap-1.5 w-full sm:w-auto"
+                          asChild
+                        >
+                          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                            Demo
+                          </a>
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="fill-center-button !py-2 !px-4 text-sm flex items-center gap-1.5 w-full sm:w-auto"
+                          asChild
+                        >
+                          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                            <Github className="h-4 w-4" />
+                            Code
+                          </a>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={closeDetails} className="w-full sm:w-auto !py-2 !px-4">
+                          Close
+                        </Button>
+                      </motion.div>
+                    </motion.div>
+                  </div>
                 </motion.div>
-              </>
+              </motion.div>
             );
           })()}
         </AnimatePresence>,

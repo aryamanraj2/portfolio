@@ -67,7 +67,7 @@ export default function TimelineItem({ item, isEducation }: TimelineItemProps) {
   const expandTimerRef = useRef<NodeJS.Timeout | null>(null);
   const collapseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const itemRef = useRef(null);
-  const isInView = useInView(itemRef, { amount: 0.3 });
+  const isInView = useInView(itemRef, { once: true, amount: 0.3 });
 
   const EXPAND_DELAY = 100; // Faster expand delay
   const COLLAPSE_DELAY = 150; // Faster collapse delay

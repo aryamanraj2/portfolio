@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 // Functional component for a single segment of the progress bar
-const ProgressBarSegment = ({ isActive, isPast, delay }: { isActive: boolean; isPast: boolean; delay: number }) => {
+const ProgressBarSegment = ({ isActive, isPast, delay, reducedMotion }: { isActive: boolean; isPast: boolean; delay: number; reducedMotion: boolean }) => {
   const variants = {
     initial: { 
       backgroundColor: "var(--segment-inactive)", 
@@ -21,12 +23,12 @@ const ProgressBarSegment = ({ isActive, isPast, delay }: { isActive: boolean; is
     active: { 
       backgroundColor: "var(--segment-active)", 
       opacity: 1, 
-      scale: 1.05,
-      height: "120%",
+      scale: reducedMotion ? 1 : 1.05,
+      height: reducedMotion ? "100%" : "120%",
       transition: {
-        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-        height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-        backgroundColor: { duration: 0.2, ease: "easeOut" }
+        scale: { duration: reducedMotion ? 0.1 : 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        height: { duration: reducedMotion ? 0.1 : 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        backgroundColor: { duration: reducedMotion ? 0.1 : 0.2, ease: "easeOut" }
       }
     },
   }
@@ -40,10 +42,10 @@ const ProgressBarSegment = ({ isActive, isPast, delay }: { isActive: boolean; is
       initial="initial"
       animate={segmentState}
       transition={{ 
-        backgroundColor: { duration: 0.3, ease: [0.23, 1, 0.32, 1], delay: delay * 0.01 },
-        opacity: { duration: 0.4, ease: "easeOut", delay: delay * 0.01 },
-        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-        height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
+        backgroundColor: { duration: reducedMotion ? 0.1 : 0.3, ease: [0.23, 1, 0.32, 1], delay: reducedMotion ? 0 : delay * 0.01 },
+        opacity: { duration: reducedMotion ? 0.1 : 0.4, ease: "easeOut", delay: reducedMotion ? 0 : delay * 0.01 },
+        scale: { duration: reducedMotion ? 0.1 : 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+        height: { duration: reducedMotion ? 0.1 : 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
       }}
     />
   )
@@ -53,6 +55,8 @@ export default function LoadingScreen() {
   const [progress, setProgress] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const isMobile = useIsMobile()
+  const prefersReducedMotion = useReducedMotion()
   const backgroundControls = useAnimation()
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -76,8 +80,8 @@ export default function LoadingScreen() {
   useEffect(() => {
     if (!mounted) return
 
-    // Smooth, eased progress animation
-    const duration = 2000 // 2 seconds for full progress
+    // Smooth, eased progress animation - faster on mobile/reduced motion
+    const duration = (prefersReducedMotion || isMobile) ? 1200 : 2000 // Faster on mobile/reduced motion
     const startTime = Date.now()
     
     const animateProgress = () => {
@@ -95,13 +99,13 @@ export default function LoadingScreen() {
       if (normalizedTime < 1) {
         requestAnimationFrame(animateProgress)
       } else {
-        // Hold at 100% for a moment before exiting
-        setTimeout(() => setLoading(false), 300)
+        // Hold at 100% for a moment before exiting - shorter on mobile/reduced motion
+        setTimeout(() => setLoading(false), (prefersReducedMotion || isMobile) ? 150 : 300)
       }
     }
     
     requestAnimationFrame(animateProgress)
-  }, [mounted])
+  }, [mounted, prefersReducedMotion, isMobile])
 
   // Define colors for segments with enhanced contrast
   const segmentColors = `
@@ -177,6 +181,7 @@ export default function LoadingScreen() {
                     isActive={index === activeSegment}
                     isPast={index < activeSegment}
                     delay={index}
+                    reducedMotion={prefersReducedMotion || isMobile}
                   />
                 </div>
               ))}

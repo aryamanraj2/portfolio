@@ -177,7 +177,7 @@ export default function ScrollToTop() {
       <button
         ref={buttonRef}
         onClick={scrollToTop}
-        className="w-full h-full cursor-pointer transition-opacity duration-300 flex items-center justify-center bg-background/50 backdrop-blur-sm border border-border/50 rounded-full shadow-xl hover:bg-secondary/70"
+        className="w-full h-full cursor-pointer transition-all duration-300 flex items-center justify-center bg-background/50 backdrop-blur-sm border border-border/50 rounded-full shadow-xl hover:bg-secondary/70 active:bg-secondary/80 active:scale-95"
         aria-label="Scroll to top"
         style={{
           padding: 0,

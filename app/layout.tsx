@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Outfit } from "next/font/google"
 import { Syne } from "next/font/google"
 import "./globals.css"
@@ -24,6 +24,13 @@ export const metadata: Metadata = {
   title: "Aryaman Jaiswal | Developer Portfolio",
   description: "Professional developer portfolio showcasing skills and projects",
   generator: 'v0.dev'
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false, // Prevent zoom on mobile forms
 }
 
 export default function RootLayout({

@@ -3,11 +3,15 @@
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { useTheme } from "next-themes"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 export default function BackgroundEffect() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { theme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const isMobile = useIsMobile()
+  const prefersReducedMotion = useReducedMotion()
   
   // Mount check to avoid hydration mismatch
   useEffect(() => {
@@ -16,6 +20,11 @@ export default function BackgroundEffect() {
 
   useEffect(() => {
     if (!canvasRef.current || !mounted) return
+    
+    // Disable complex 3D effects on mobile and for reduced motion preference
+    if (isMobile || prefersReducedMotion) {
+      return
+    }
 
     // Determine if we're in dark mode
     const isDarkMode = resolvedTheme === "dark"
@@ -38,7 +47,8 @@ export default function BackgroundEffect() {
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       alpha: true,
-      antialias: true,
+      antialias: false, // Disable antialiasing for better performance
+      powerPreference: "high-performance"
     })
     
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -95,8 +105,8 @@ export default function BackgroundEffect() {
     
     scene.add(gridGroup);
     
-    // Create particle system
-    const particlesCount = 500;
+    // Create particle system with reduced count
+    const particlesCount = 250; // Reduced from 500 for better performance
     const particlesGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particlesCount * 3);
     const particleSizes = new Float32Array(particlesCount);
@@ -208,9 +218,80 @@ export default function BackgroundEffect() {
       gridMaterial.dispose();
       renderer.dispose();
     };
-  }, [mounted, resolvedTheme, theme]);
+  }, [mounted, resolvedTheme, theme, isMobile, prefersReducedMotion]);
 
   if (!mounted) return null;
+
+  // Show mobile-optimized background that matches the desktop aesthetic
+  if (isMobile || prefersReducedMotion) {
+    return (
+      <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/10" />
+        
+        {/* CSS-only animated particles - similar to desktop */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }).map((_, i) => {
+            const size = Math.random() > 0.7 ? 'w-2 h-2' : 'w-1 h-1';
+            const opacity = Math.random() > 0.5 ? 'bg-primary/30' : 'bg-primary/15';
+            return (
+              <div
+                key={i}
+                className={`absolute ${size} ${opacity} rounded-full animate-float`}
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 15}s`,
+                  animationDuration: `${10 + Math.random() * 8}s`,
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Larger floating elements for depth */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={`large-${i}`}
+              className="absolute w-3 h-3 bg-primary/10 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${6 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Subtle animated grid overlay */}
+        <div 
+          className="absolute inset-0 opacity-5 animate-wave"
+          style={{
+            backgroundImage: `
+              linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
+              linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+            animationDelay: '2s',
+          }}
+        />
+        
+        {/* Additional subtle moving gradients for depth */}
+        <div className="absolute inset-0">
+          <div 
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"
+            style={{ animationDuration: '8s', animationDelay: '1s' }}
+          />
+          <div 
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-2xl animate-pulse"
+            style={{ animationDuration: '12s', animationDelay: '4s' }}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <canvas 

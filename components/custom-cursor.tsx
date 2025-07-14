@@ -3,12 +3,14 @@
 import { useEffect, useState, useRef } from "react"
 import { motion, useMotionValue, useSpring } from "framer-motion"
 import { useTheme } from "next-themes"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function CustomCursor() {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
   const [isPointer, setIsPointer] = useState(false)
+  const isMobile = useIsMobile()
   const cursorRef = useRef<HTMLDivElement>(null)
   
   // Smooth cursor motion values
@@ -53,7 +55,7 @@ export default function CustomCursor() {
   }, [])
   
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || isMobile) return
     
     // Optimized event handler with requestAnimationFrame
     let rafId: number;
@@ -131,10 +133,10 @@ export default function CustomCursor() {
         styleToRemove.remove();
       }
     }
-  }, [mounted, cursorX, cursorY])
+  }, [mounted, isMobile, cursorX, cursorY])
   
-  // Don't render on SSR or mobile
-  if (!mounted || (typeof window !== "undefined" && window.innerWidth < 1024)) {
+  // Don't render on SSR or mobile devices
+  if (!mounted || isMobile) {
     return null
   }
   

@@ -201,10 +201,10 @@ export default function Navbar() {
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-secondary/30 border border-border transition-colors hover:bg-secondary/50"
+            className="w-11 h-11 flex items-center justify-center rounded-full bg-secondary/30 border border-border transition-colors hover:bg-secondary/50 active:bg-secondary/70 active:scale-95"
             aria-label="Toggle menu"
           >
-            {isOpen ? <X size={18} /> : <Menu size={18} />}
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -217,13 +217,14 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden fixed inset-x-0 top-[72px] pt-6 pb-10 bg-background/95 backdrop-blur-lg shadow-lg flex flex-col items-center justify-between z-40 border-b border-border/30"
+            className="md:hidden fixed inset-x-0 top-[72px] pt-8 pb-12 bg-background/95 backdrop-blur-lg shadow-lg flex flex-col items-center justify-between z-40 border-b border-border/30"
             style={{ 
               maxHeight: 'calc(100vh - 72px)',
-              overflowY: 'auto'
+              overflowY: 'auto',
+              touchAction: 'pan-y'
             }}
           >
-            <div className="flex flex-col items-center gap-6 w-full">
+            <div className="flex flex-col items-center gap-8 w-full">
               {navItems.map((item, index) => (
                 <motion.div
                   key={item.name}
@@ -238,7 +239,7 @@ export default function Navbar() {
                 >
                   <Link
                     href={item.href}
-                    className={`text-xl font-medium py-3 px-4 relative transition-colors duration-200 inline-block ${
+                    className={`text-xl font-medium py-4 px-6 relative transition-colors duration-200 inline-block min-h-[44px] flex items-center rounded-lg hover:bg-secondary/20 active:bg-secondary/40 active:scale-95 ${
                       activeSection === item.href.substring(1) 
                         ? 'text-primary' 
                         : 'text-muted-foreground hover:text-primary'

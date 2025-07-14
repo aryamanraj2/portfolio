@@ -2,6 +2,8 @@
 
 import { useRef, useEffect } from "react"
 import * as THREE from "three"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 interface ThreeSceneProps {
   intensity?: number
@@ -15,9 +17,16 @@ export default function ThreeScene({ intensity = 0.3 }: ThreeSceneProps) {
   const pointsRef = useRef<THREE.Points | null>(null)
   const frameIdRef = useRef<number | null>(null)
   const mouseRef = useRef({ x: 0, y: 0 })
+  const isMobile = useIsMobile()
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     if (!containerRef.current) return
+    
+    // Disable on mobile or when reduced motion is preferred for better performance
+    if (isMobile || prefersReducedMotion) {
+      return
+    }
 
     // Initialize scene
     const scene = new THREE.Scene()
@@ -28,10 +37,14 @@ export default function ThreeScene({ intensity = 0.3 }: ThreeSceneProps) {
     camera.position.z = 5
     cameraRef.current = camera
 
-    // Initialize renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+    // Initialize renderer with performance optimizations
+    const renderer = new THREE.WebGLRenderer({ 
+      alpha: true, 
+      antialias: false, // Disable antialiasing for better performance
+      powerPreference: "high-performance"
+    })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // Cap pixel ratio for performance
     containerRef.current.appendChild(renderer.domElement)
     rendererRef.current = renderer
 
@@ -51,9 +64,9 @@ export default function ThreeScene({ intensity = 0.3 }: ThreeSceneProps) {
       rendererRef.current.setSize(window.innerWidth, window.innerHeight)
     }
 
-    // Create particle scene
+    // Create particle scene with reduced particle count for better performance
     const particlesGeometry = new THREE.BufferGeometry()
-    const particlesCount = 1500
+    const particlesCount = 800 // Reduced from 1500 for better performance
 
     const posArray = new Float32Array(particlesCount * 3)
     const colorsArray = new Float32Array(particlesCount * 3)
@@ -130,7 +143,7 @@ export default function ThreeScene({ intensity = 0.3 }: ThreeSceneProps) {
         rendererRef.current.dispose()
       }
     }
-  }, [intensity])
+  }, [intensity, isMobile, prefersReducedMotion])
 
   return <div ref={containerRef} className="absolute inset-0 -z-10" />
 }
