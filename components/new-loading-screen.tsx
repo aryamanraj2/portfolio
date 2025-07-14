@@ -7,10 +7,10 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 // Eye component
 const Eye = ({ progress }: { progress: number }) => {
-  const eyePerimeter = 110
-  const eyeProgress = Math.min(progress / 100, 1)
-  const eyeDashOffset = eyePerimeter * (1 - eyeProgress)
-  const pupilOpacity = Math.min(progress / 100, 1)
+  const trianglePerimeter = 140; // Approximate perimeter for the new triangle
+  const eyeProgress = Math.min(progress / 100, 1);
+  const eyeDashOffset = trianglePerimeter * (1 - eyeProgress);
+  const pupilOpacity = Math.min(progress / 100, 1);
 
   return (
     <motion.svg
@@ -22,15 +22,14 @@ const Eye = ({ progress }: { progress: number }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <motion.ellipse
-        cx="50"
-        cy="50"
-        rx="25"
-        ry="15"
+      <motion.polygon
+        points="50,25 85,75 15,75" // Triangle points
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        strokeDasharray={eyePerimeter}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={trianglePerimeter}
         strokeDashoffset={eyeDashOffset}
         transition={{
           strokeDashoffset: { duration: 0.2, ease: "easeOut" },
@@ -38,7 +37,7 @@ const Eye = ({ progress }: { progress: number }) => {
       />
       <motion.circle
         cx="50"
-        cy="50"
+        cy="60" // Position pupil inside the triangle
         r="5"
         fill="currentColor"
         opacity={pupilOpacity}
@@ -47,8 +46,8 @@ const Eye = ({ progress }: { progress: number }) => {
         }}
       />
     </motion.svg>
-  )
-}
+  );
+};
 
 // Progress bar segment
 const ProgressBarSegment = ({ isActive, isPast, delay, reducedMotion }: { isActive: boolean; isPast: boolean; delay: number; reducedMotion: boolean }) => {

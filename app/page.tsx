@@ -33,10 +33,10 @@ export default function Home() {
           <motion.main
             key="main"
             className="relative z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{
-              duration: 0.6,
+              duration: 0.8,
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
           >
