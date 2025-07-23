@@ -80,13 +80,13 @@ export default function SkillsSection() {
   // Combine refs for the section
   const combinedRef = (node: HTMLElement | null) => {
     if (sectionRef.current !== node) {
-      (sectionRef as any).current = node;
+      sectionRef.current = node;
     }
     if (parallaxRef.current !== node) {
-      (parallaxRef as any).current = node;
+      parallaxRef.current = node;
     }
     if (parallaxAnimationRef.current !== node) {
-      (parallaxAnimationRef as any).current = node;
+      parallaxAnimationRef.current = node;
     }
   };
 

@@ -76,7 +76,7 @@ export default function ContactSection() {
             className="heading-lg mb-6"
             variants={itemVariants}
           >
-            Let's <span className="gradient-text">Connect</span>
+            Let&apos;s <span className="gradient-text">Connect</span>
           </motion.h2>
 
           {/* Short message */}

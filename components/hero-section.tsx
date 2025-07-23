@@ -57,7 +57,7 @@ export default function HeroSection() {
               className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto text-foreground/80"
               variants={itemVariants}
             >
-              Based out of Delhi, I'm passionate about crafting experiences that are engaging, accessible, and user-centric.
+              Based out of Delhi, I&apos;m passionate about crafting experiences that are engaging, accessible, and user-centric.
             </motion.p>
 
             <motion.div

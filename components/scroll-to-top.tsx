@@ -5,14 +5,13 @@ import { motion } from "framer-motion"
 import { useButtonHover } from "@/context/HoverContext"
 
 // Simple throttle function (can be moved to a utils file if used elsewhere)
-function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+function throttle<T extends (...args: unknown[]) => unknown>(func: T, limit: number): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   let lastFunc: ReturnType<typeof setTimeout>;
   let lastRan: number;
   return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
-    const context = this;
     if (!inThrottle) {
-      func.apply(context, args);
+      func.apply(this, args);
       lastRan = Date.now();
       inThrottle = true;
       setTimeout(() => {
@@ -22,7 +21,7 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (.
       clearTimeout(lastFunc);
       lastFunc = setTimeout(() => {
         if ((Date.now() - lastRan) >= limit) {
-          func.apply(context, args);
+          func.apply(this, args);
           lastRan = Date.now();
         }
       }, limit - (Date.now() - lastRan));

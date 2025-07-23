@@ -1,10 +1,8 @@
 "use client"
 
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion"
-import { Sparkles } from "lucide-react"
 import React, { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import GithubContributionGrid from "@/components/GithubContributionGrid"
 
 // Playlist data with songs from the user's actual playlist
 const playlistSongs = [
@@ -280,7 +278,7 @@ export default function AboutSection() {
               I craft digital experiences that blend creativity with functionality. My approach combines clean code with intuitive design, turning complex problems into elegant solutions.
             </p>
             <p className="text-lg md:text-xl font-light leading-relaxed text-foreground/80">
-              When I'm not building the web, you'll find me exploring new coffee shops, getting lost in cinematic universes, or pushing my limits at the gym.
+              When I&apos;m not building the web, you&apos;ll find me exploring new coffee shops, getting lost in cinematic universes, or pushing my limits at the gym.
             </p>
           </motion.div>
 
@@ -431,7 +429,7 @@ export default function AboutSection() {
                     <motion.h4 variants={popupItemVariants} className="text-3xl font-bold mb-1 gradient-text">{popupContent.title}</motion.h4>
                     {popupContent.id === 'movies' && (
                       <motion.div variants={popupItemVariants} className="prose prose-invert">
-                        <p className="font-bold mb-2">Best Movies I've Watched Recently:</p>
+                        <p className="font-bold mb-2">Best Movies I&apos;ve Watched Recently:</p>
                         <ul className="list-disc pl-5 space-y-1">
                           <li>Rocky</li>
                           <li>Parasite</li>

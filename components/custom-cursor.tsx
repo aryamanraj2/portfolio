@@ -28,27 +28,7 @@ export default function CustomCursor() {
   const cursorXSpring = useSpring(cursorX, springConfig)
   const cursorYSpring = useSpring(cursorY, springConfig)
   
-  // Trail effect - premium trail
-  const trailDots = 0; // Changed from 3 to 0 to disable trail dots
-  
-  // Create a delayed reference for each dot in the trail - premium spring configs
-  const trailXSprings = Array.from({ length: trailDots }).map((_, i) => {
-    return useSpring(cursorX, { 
-      ...springConfig,
-      damping: 30 + (i * 5), // Progressive damping for smooth trail
-      stiffness: 250 - (i * 30), // Progressive stiffness reduction
-      mass: 0.7 + (i * 0.15), // Progressive mass increase for trail effect
-    })
-  })
-  
-  const trailYSprings = Array.from({ length: trailDots }).map((_, i) => {
-    return useSpring(cursorY, {
-      ...springConfig,
-      damping: 30 + (i * 5),
-      stiffness: 250 - (i * 30),
-      mass: 0.7 + (i * 0.15),
-    })
-  })
+  // Trail effect disabled (trailDots = 0)
   
   useEffect(() => {
     setMounted(true)
@@ -157,25 +137,7 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Trail dots - premium rendering */}
-      {trailDots > 0 && trailXSprings.map((trailX, i) => (
-        <motion.div
-          key={`trail-${i}`}
-          className="fixed top-0 left-0 z-[98] pointer-events-none"
-          style={{
-            x: trailXSprings[i],
-            y: trailYSprings[i],
-            translateX: "-50%",
-            translateY: "-50%",
-            backgroundColor: cursorBaseColor,
-            mixBlendMode: 'difference',
-            borderRadius: '9999px',
-            opacity: 0.45 - (i * 0.12), // Richer trail opacity
-            width: 7 - (i * 1.2), // Slightly larger trail dots
-            height: 7 - (i * 1.2),
-          }}
-        />
-      ))}
+      {/* Trail dots disabled */}
     
       {/* Main cursor dot - premium animation */}
       <motion.div

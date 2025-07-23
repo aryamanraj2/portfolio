@@ -58,7 +58,16 @@ const cardSlideVariants = {
 };
 
 interface TimelineItemProps {
-  item: any; // Consider defining a more specific type for item
+  item: {
+    title?: string;
+    degree?: string;
+    company?: string;
+    institution?: string;
+    period: string;
+    skills?: string[];
+    description?: string;
+    technologies?: string[];
+  };
   isEducation: boolean;
 }
 
