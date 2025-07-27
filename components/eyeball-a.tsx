@@ -1,7 +1,9 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useButtonHover } from "@/context/HoverContext"; // Import the hook
+import EyeExpansionOverlay, { type EyePosition, type AnimationState } from "./eye-expansion-overlay";
 
 // Renamed component
 const EyeballA: React.FC = () => {
@@ -11,6 +13,12 @@ const EyeballA: React.FC = () => {
   const [pupilTransform, setPupilTransform] = useState('');
   const [isBlinking, setIsBlinking] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
+  // Eye expansion state management
+  const [isExpansionOpen, setIsExpansionOpen] = useState(false);
+  const [eyePosition, setEyePosition] = useState<EyePosition | null>(null);
+  const [animationState, setAnimationState] = useState<AnimationState>('idle');
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Mount check to avoid hydration mismatch
   useEffect(() => {
@@ -23,9 +31,32 @@ const EyeballA: React.FC = () => {
   // Log the received state
   console.log('EyeballA - isButtonHovered:', isButtonHovered);
 
+  const handleBlink = useCallback(() => {
+    if (isBlinking) return;
+    setIsBlinking(true);
+    setTimeout(() => {
+      setIsBlinking(false);
+    }, 150);
+  }, [isBlinking]);
+
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      if (isAnimating || isExpansionOpen) {
+        return;
+      }
+      handleBlink();
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, [isAnimating, isExpansionOpen, handleBlink]);
+
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      if (!svgRef.current || !pupilRef.current) return;
+      if (!svgRef.current || !pupilRef.current || isAnimating) return; // Disable during animation
 
       const svgRect = svgRef.current.getBoundingClientRect();
       const eyeCenterX = svgRect.left + svgRect.width / 2;
@@ -62,27 +93,64 @@ const EyeballA: React.FC = () => {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [isAnimating]); // Disable mouse tracking during animation
 
-  // Add global click listener to trigger blink
-  useEffect(() => {
-    const handleGlobalClick = () => {
-      handleBlink();
+  // Precise position tracking system
+  const captureEyePosition = (): EyePosition => {
+    if (!svgRef.current) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    return {
+      x: rect.left + scrollX,
+      y: rect.top + scrollY,
+      width: rect.width,
+      height: rect.height
     };
+  };
 
-    document.addEventListener('click', handleGlobalClick);
+  // Enhanced click handler for eye expansion
+  const handleEyeClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     
-    return () => {
-      document.removeEventListener('click', handleGlobalClick);
-    };
-  }, []);
+    // Prevent rapid clicking during animation
+    if (isAnimating || animationState !== 'idle') return;
 
-  const handleBlink = () => {
-    if (isBlinking) return;
-    setIsBlinking(true);
+    // Capture exact eye position
+    const position = captureEyePosition();
+    setEyePosition(position);
+
+    // Trigger immediate visual feedback
+    setIsAnimating(true);
+    
+    // Quick blink animation as feedback
+    handleBlink();
+
+    // Start expansion after brief feedback delay
     setTimeout(() => {
-      setIsBlinking(false);
+      setIsExpansionOpen(true);
+      setAnimationState('expanding');
     }, 150);
+  };
+
+  // Handle expansion overlay close
+  const handleExpansionClose = () => {
+    setAnimationState('collapsing');
+    setIsExpansionOpen(false);
+  };
+
+  // Handle animation state changes
+  const handleAnimationStateChange = (newState: AnimationState) => {
+    setAnimationState(newState);
+    
+    if (newState === 'idle') {
+      setIsAnimating(false);
+      setEyePosition(null);
+    }
   };
 
   // Define SVG size and alignment to match text
@@ -112,12 +180,21 @@ const EyeballA: React.FC = () => {
   }
 
   return (
-    <svg 
-      ref={svgRef}
-      viewBox="0 0 100 100" // ViewBox defines internal coordinate system
-      style={svgStyle}
-      aria-hidden="true"
-    >
+    <>
+      <motion.svg
+        ref={svgRef}
+        viewBox="0 0 100 100" // ViewBox defines internal coordinate system
+        style={svgStyle}
+        aria-hidden="true"
+        onClick={handleEyeClick}
+        transition={{
+          duration: 0.15,
+          ease: [0.16, 1, 0.3, 1]
+        }}
+        whileHover={{
+          scale: animationState === 'idle' ? 1.02 : 1
+        }}
+      >
       {/* Outer Triangle (stroke only) */}
       <polygon 
         points="50,10 95,90 5,90" // Adjust points for desired triangle shape
@@ -149,8 +226,18 @@ const EyeballA: React.FC = () => {
           transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       />
-    </svg>
+      </motion.svg>
+      
+      {/* Eye Expansion Overlay */}
+      <EyeExpansionOverlay
+        isOpen={isExpansionOpen}
+        eyePosition={eyePosition}
+        onClose={handleExpansionClose}
+        animationState={animationState}
+        onAnimationStateChange={handleAnimationStateChange}
+      />
+    </>
   );
 };
 
-export default EyeballA; // Export the renamed component 
+export default EyeballA; // Export the renamed component
