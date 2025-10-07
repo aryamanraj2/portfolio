@@ -14,6 +14,12 @@ const EyeballA: React.FC = () => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [mounted, setMounted] = useState(false);
   
+  // Performance optimizations - cache eye position
+  const eyePositionCache = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const animationFrameRef = useRef<number | null>(null);
+  const targetPosition = useRef({ x: 0, y: 0 });
+  const currentPosition = useRef({ x: 0, y: 0 });
+  
   // Eye expansion state management
   const [isExpansionOpen, setIsExpansionOpen] = useState(false);
   const [eyePosition, setEyePosition] = useState<EyePosition | null>(null);
@@ -23,6 +29,17 @@ const EyeballA: React.FC = () => {
   // Mount check to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
+    
+    // Initialize eye position immediately after mount
+    if (svgRef.current) {
+      const rect = svgRef.current.getBoundingClientRect();
+      eyePositionCache.current = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+        width: rect.width,
+        height: rect.height
+      };
+    }
   }, []);
 
   // Consume the hover state from context
@@ -54,29 +71,126 @@ const EyeballA: React.FC = () => {
     };
   }, [isAnimating, isExpansionOpen, handleBlink]);
 
+  // Cache eye position on mount and resize
+  useEffect(() => {
+    if (!mounted) return;
+
+    const updateEyePosition = () => {
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      
+      // Only update if we have valid dimensions
+      if (rect.width > 0 && rect.height > 0) {
+        eyePositionCache.current = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          width: rect.width,
+          height: rect.height
+        };
+      }
+    };
+
+    // Multiple update attempts to handle animations
+    const timeoutId1 = setTimeout(updateEyePosition, 100);
+    const timeoutId2 = setTimeout(updateEyePosition, 300);
+    const timeoutId3 = setTimeout(updateEyePosition, 600);
+    
+    // Use IntersectionObserver to update when element becomes visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            updateEyePosition();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (svgRef.current) {
+      observer.observe(svgRef.current);
+    }
+    
+    window.addEventListener('resize', updateEyePosition);
+    window.addEventListener('scroll', updateEyePosition, { passive: true });
+
+    return () => {
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+      clearTimeout(timeoutId3);
+      observer.disconnect();
+      window.removeEventListener('resize', updateEyePosition);
+      window.removeEventListener('scroll', updateEyePosition);
+    };
+  }, [mounted]);
+
+  // Smooth animation loop using RAF
+  useEffect(() => {
+    const lerp = (start: number, end: number, factor: number) => {
+      return start + (end - start) * factor;
+    };
+
+    const animate = () => {
+      if (isAnimating) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      // Smooth interpolation for natural movement
+      const smoothingFactor = 0.15;
+      currentPosition.current.x = lerp(
+        currentPosition.current.x,
+        targetPosition.current.x,
+        smoothingFactor
+      );
+      currentPosition.current.y = lerp(
+        currentPosition.current.y,
+        targetPosition.current.y,
+        smoothingFactor
+      );
+
+      // Only update if there's meaningful movement
+      const distance = Math.sqrt(
+        Math.pow(currentPosition.current.x - targetPosition.current.x, 2) +
+        Math.pow(currentPosition.current.y - targetPosition.current.y, 2)
+      );
+
+      if (distance > 0.01) {
+        setPupilTransform(
+          `translate3d(${currentPosition.current.x}px, ${currentPosition.current.y}px, 0)`
+        );
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isAnimating]);
+
+  // Mouse move handler - just updates target position
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      if (!svgRef.current || !pupilRef.current || isAnimating) return; // Disable during animation
+      if (isAnimating) return;
 
-      const svgRect = svgRef.current.getBoundingClientRect();
-      const eyeCenterX = svgRect.left + svgRect.width / 2;
-      const eyeCenterY = svgRect.top + svgRect.height / 2;
+      const { x: eyeCenterX, y: eyeCenterY, width, height } = eyePositionCache.current;
       
-      const cursorX = event.clientX;
-      const cursorY = event.clientY;
-
-      const deltaX = cursorX - eyeCenterX;
-      const deltaY = cursorY - eyeCenterY;
+      const deltaX = event.clientX - eyeCenterX;
+      const deltaY = event.clientY - eyeCenterY;
       const angle = Math.atan2(deltaY, deltaX);
 
-      // Define boundaries for pupil movement (relative to eye size)
-      const eyeRadiusX = svgRect.width * 0.15; // Horizontal radius within triangle
-      const eyeRadiusY = svgRect.height * 0.1; // Vertical radius within triangle
+      // Define boundaries for pupil movement
+      const eyeRadiusX = width * 0.15;
+      const eyeRadiusY = height * 0.1;
       const maxPupilDistX = eyeRadiusX;
       const maxPupilDistY = eyeRadiusY;
 
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      // Adjust sensitivity - move less than cursor
       const sensitivity = 0.1;
       let pupilDistX = Math.cos(angle) * distance * sensitivity;
       let pupilDistY = Math.sin(angle) * distance * sensitivity;
@@ -85,15 +199,16 @@ const EyeballA: React.FC = () => {
       pupilDistX = Math.max(-maxPupilDistX, Math.min(maxPupilDistX, pupilDistX));
       pupilDistY = Math.max(-maxPupilDistY, Math.min(maxPupilDistY, pupilDistY));
 
-      setPupilTransform(`translate(${pupilDistX}px, ${pupilDistY}px)`);
+      // Update target position for smooth animation
+      targetPosition.current = { x: pupilDistX, y: pupilDistY };
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [isAnimating]); // Disable mouse tracking during animation
+  }, [isAnimating]);
 
   // Precise position tracking system
   const captureEyePosition = (): EyePosition => {
@@ -223,7 +338,7 @@ const EyeballA: React.FC = () => {
         fill={blackColor}
         style={{
           transform: pupilTransform,
-          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          willChange: 'transform'
         }}
       />
       </motion.svg>

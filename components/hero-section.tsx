@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
+import { motion, Variants } from "framer-motion"
 import { ArrowRightIcon } from "lucide-react"
 import EyeballA from "./eyeball-a"
 
@@ -18,7 +18,7 @@ export default function HeroSection() {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: { 
       y: 0, 

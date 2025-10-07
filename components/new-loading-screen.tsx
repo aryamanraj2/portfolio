@@ -162,8 +162,8 @@ const ProgressBarSegment = ({
       scale: reducedMotion ? 1 : 1.05,
       scaleX: 1,
       transition: {
-        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-        backgroundColor: { duration: 0.2, ease: "easeOut" }
+        scale: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any },
+        backgroundColor: { duration: 0.2, ease: "easeOut" as any }
       }
     },
     expanding: {
@@ -174,10 +174,10 @@ const ProgressBarSegment = ({
       transition: {
         scaleX: { 
           duration: 0.6, 
-          ease: [0.25, 0.46, 0.45, 0.94],
+          ease: [0.25, 0.46, 0.45, 0.94] as any,
           delay: expansionDelay * 0.02 // Staggered expansion
         },
-        scale: { duration: 0.1, ease: "easeOut" }
+        scale: { duration: 0.1, ease: "easeOut" as any }
       }
     }
   }
@@ -204,26 +204,27 @@ export default function NewLoadingScreen({ onLoadingComplete }: { onLoadingCompl
   const [isExpanding, setIsExpanding] = useState(false)
   const [shouldFadeOut, setShouldFadeOut] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+  const [showBlackCurtain, setShowBlackCurtain] = useState(false)
   const isMobile = useIsMobile()
   const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
-    const duration = (prefersReducedMotion || isMobile) ? 2500 : 3500 // Increased duration to make loading more visible
+    const duration = (prefersReducedMotion || isMobile) ? 2000 : 2500 // Snappier duration
     const startTime = Date.now()
 
     const animateProgress = () => {
       const elapsed = Date.now() - startTime
       const normalizedTime = Math.min(elapsed / duration, 1)
       
-      // Modified easing for slower progression until 95%
+      // Snappier easing curve
       const easeInOutCubic = (t: number) => {
         if (t < 0.95) {
-          // Slower progression to 95%
-          const adjustedT = t / 0.95 * 0.85
+          // Faster progression to 95%
+          const adjustedT = t / 0.95 * 0.9
           return adjustedT < 0.5 ? 4 * adjustedT * adjustedT * adjustedT : 1 - Math.pow(-2 * adjustedT + 2, 3) / 2
         } else {
           // Rapid progression from 95% to 100%
-          return 0.85 + (t - 0.95) / 0.05 * 0.15
+          return 0.9 + (t - 0.95) / 0.05 * 0.1
         }
       }
       
@@ -241,13 +242,18 @@ export default function NewLoadingScreen({ onLoadingComplete }: { onLoadingCompl
           setTimeout(() => {
             setShouldFadeOut(true)
             
-            // Phase 4: Complete transition to main content
+            // Phase 4: Show black curtain slide up
             setTimeout(() => {
-              setIsComplete(true)
-              setTimeout(() => setLoading(false), 200)
-            }, 600) // Wait for expansion to complete
-          }, 300) // Start fade during expansion
-        }, 200) // Brief pause at 100%
+              setShowBlackCurtain(true)
+              
+              // Phase 5: Complete transition to main content
+              setTimeout(() => {
+                setIsComplete(true)
+                setTimeout(() => setLoading(false), 100)
+              }, 600) // Wait for black curtain to slide up
+            }, 400)
+          }, 200)
+        }, 150) // Snappier pause at 100%
       }
     }
     requestAnimationFrame(animateProgress)
@@ -274,46 +280,65 @@ export default function NewLoadingScreen({ onLoadingComplete }: { onLoadingCompl
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
-            scale: 0.98,
-            filter: "blur(0px)",
           }}
           transition={{
-            duration: 0.8,
+            duration: 0.3,
             ease: [0.4, 0, 0.2, 1],
           }}
-          className="fixed inset-0 z-60 flex flex-col items-center justify-center bg-background overflow-hidden"
+          className="fixed inset-0 z-60 flex flex-col items-center justify-center overflow-hidden"
+          style={{ backgroundColor: '#F5F5F0' }} // Off-white background
         >
           <style>{`:root { ${segmentColors} }`}</style>
           
-          {/* Simple thin loading bar at top */}
-          <ThinLoadingBar
-            progress={progress}
-            isExpanding={isExpanding}
-            shouldFadeOut={shouldFadeOut}
-          />
+          {/* Simple thin loading bar at top - black color */}
+          <div className="fixed top-0 left-0 right-0 z-10 h-0.5 bg-transparent overflow-hidden">
+            <motion.div
+              className="h-full"
+              style={{ backgroundColor: '#000000' }}
+              initial={{ width: "0%" }}
+              animate={{
+                width: `${progress}%`,
+                opacity: shouldFadeOut ? 0 : 1
+              }}
+              transition={{
+                width: { duration: 0.3, ease: "easeOut" },
+                opacity: shouldFadeOut ? { duration: 0.3, ease: "easeOut" } : { duration: 0.5, delay: 0.2 }
+              }}
+            />
+          </div>
           
-          <Eye progress={progress} shouldFadeOut={shouldFadeOut} />
+          {/* Eye with black triangle */}
+          <div className="relative flex items-center justify-center" style={{ color: '#000000' }}>
+            <Eye progress={progress} shouldFadeOut={shouldFadeOut} />
+          </div>
           
-          {/* Expandable progress bar container */}
+          {/* Expandable progress bar container - black segments */}
           <motion.div 
             className="relative mt-4"
             initial={{ width: "80%", maxWidth: "20rem" }}
             animate={{ 
               width: isExpanding ? "100vw" : "80%",
-              maxWidth: isExpanding ? "none" : "20rem"
+              maxWidth: isExpanding ? "none" : "20rem",
+              opacity: shouldFadeOut ? 0 : 1
             }}
             transition={{
-              duration: 0.6,
-              ease: [0.25, 0.46, 0.45, 0.94],
-              delay: isExpanding ? 0.1 : 0
+              width: {
+                duration: 0.5,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                delay: isExpanding ? 0.05 : 0
+              },
+              opacity: shouldFadeOut ? { duration: 0.3, ease: "easeOut" } : {}
             }}
           >
             <motion.div 
               className="flex h-2 gap-1 items-end justify-center"
               style={{ 
                 transformOrigin: "center",
-                overflowX: isExpanding ? "visible" : "hidden"
-              }}
+                overflowX: isExpanding ? "visible" : "hidden",
+                '--segment-inactive': 'rgba(0, 0, 0, 0.15)',
+                '--segment-past': 'rgba(0, 0, 0, 0.5)',
+                '--segment-active': 'rgba(0, 0, 0, 1)',
+              } as React.CSSProperties}
             >
               {Array.from({ length: totalSegments }).map((_, index) => (
                 <ProgressBarSegment
@@ -328,19 +353,37 @@ export default function NewLoadingScreen({ onLoadingComplete }: { onLoadingCompl
               ))}
             </motion.div>
             
-            {/* Percentage counter with fade-out */}
+            {/* Percentage counter with fade-out - black text */}
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 text-xs font-mono font-medium text-primary/90 mt-2"
+              className="absolute left-1/2 -translate-x-1/2 text-xs font-mono font-medium mt-2"
+              style={{ color: '#000000', opacity: 0.9 }}
               key={Math.round(progress)}
               initial={{ opacity: 0 }}
               animate={{ opacity: shouldFadeOut ? 0 : 1 }}
               transition={{ 
-                opacity: shouldFadeOut ? { duration: 0.4, ease: "easeOut" } : { duration: 0.2 }
+                opacity: shouldFadeOut ? { duration: 0.3, ease: "easeOut" } : { duration: 0.2 }
               }}
             >
               {Math.round(progress)}%
             </motion.div>
           </motion.div>
+          
+          {/* Black curtain that slides up */}
+          <AnimatePresence>
+            {showBlackCurtain && (
+              <motion.div
+                className="fixed inset-0 z-50"
+                style={{ backgroundColor: '#000000' }}
+                initial={{ y: '100%' }}
+                animate={{ y: '0%' }}
+                exit={{ y: '-100%' }}
+                transition={{
+                  duration: 0.6,
+                  ease: [0.65, 0, 0.35, 1] // Smooth easing curve
+                }}
+              />
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
