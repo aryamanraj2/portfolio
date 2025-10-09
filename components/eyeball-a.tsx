@@ -310,35 +310,40 @@ const EyeballA: React.FC = () => {
           scale: animationState === 'idle' ? 1.02 : 1
         }}
       >
-      {/* Outer Triangle (stroke only) */}
+      {/* Outer Triangle (stroke only) - bottom layer */}
       <polygon 
-        points="50,10 95,90 5,90" // Adjust points for desired triangle shape
+        points="50,10 95,90 5,90"
         fill="none"
         stroke={strokeColor}
         strokeWidth={strokeWidth}
+        style={{
+          pointerEvents: 'none'
+        }}
       />
-      {/* Inner Eye Shape (white fill) - simplified ellipse */}
+      {/* Inner Eye Shape (white fill) - middle layer */}
       <ellipse 
         ref={ellipseRef}
         cx="50" 
-        cy="60" // Positioned lower in the triangle
-        rx="30" // Horizontal radius
+        cy="60"
+        rx="30"
         ry={isBlinking ? blinkRy : isButtonHovered ? squintRy : normalRy}
         fill={whiteColor}
         style={{
-          transition: 'ry 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+          transition: 'ry 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
+          cursor: 'pointer'
         }}
       />
-      {/* Pupil (black circle) */}
+      {/* Pupil (black circle) - top layer, visible and interactive */}
       <circle 
         ref={pupilRef}
         cx="50" 
-        cy="60" // Initial center same as eye ellipse
-        r="8" // Pupil radius
+        cy="60"
+        r="8"
         fill={blackColor}
         style={{
           transform: pupilTransform,
-          willChange: 'transform'
+          willChange: 'transform',
+          cursor: 'pointer'
         }}
       />
       </motion.svg>

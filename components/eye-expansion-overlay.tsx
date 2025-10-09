@@ -135,7 +135,8 @@ const EyeExpansionOverlay: React.FC<EyeExpansionOverlayProps> = ({
           className="fixed inset-0 z-[9999]"
           style={{ 
             transformOrigin: getTransformOrigin(),
-            willChange: 'transform, opacity'
+            willChange: 'transform, opacity',
+            cursor: 'auto' // Ensure cursor is visible
           }}
         >
           {/* Backdrop with fade animation */}

@@ -141,7 +141,7 @@ export default function CustomCursor() {
     
       {/* Main cursor dot - premium animation */}
       <motion.div
-        className="fixed top-0 left-0 z-[100] pointer-events-none"
+        className="fixed top-0 left-0 z-[10000] pointer-events-none"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -164,7 +164,7 @@ export default function CustomCursor() {
       {/* Cursor ring/circle - premium animation */}
       <motion.div
         ref={cursorRef}
-        className={`fixed top-0 left-0 z-[99] rounded-full pointer-events-none border`}
+        className={`fixed top-0 left-0 z-[10000] rounded-full pointer-events-none border`}
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
